@@ -20,16 +20,17 @@
                                     <div class="panel-body">
                                       <div class="col-md-6">
                                         <div class="alert alert-danger alert-border alert-dismissible fade in" role="alert">
-                                          <h3>Heading
+                                          <h3>Gambar Kegiatan
                                             <button type="button" class="close pull-right" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
                                           </h3>
-                                          <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s</p>
+                                         <!--  <p><img style="width: 100px;" src='<?= base_url().'uploads/'.$d->dokumen ?>'></p> -->
+                                         <img style="width: 300px;" src="<?php echo base_url()?>uploads/13.png" alt="">
                                         </div>
                                       </div>
 
                                       <div class="col-md-6">
                                         <div class="alert alert-warning alert-border alert-dismissible fade in" role="alert">
-                                         <h3>Heading
+                                         <h3>Nama Kegiatan
                                           <button type="button" class="close pull-right" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
                                         </h3>
                                         <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s</p>
@@ -38,7 +39,7 @@
 
                                     <div class="col-md-6">
                                       <div class="alert alert-primary alert-border alert-dismissible fade in" role="alert">
-                                       <h3>Heading
+                                       <h3>Tanggal Kegiatan
                                         <button type="button" class="close pull-right" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
                                       </h3>
                                       <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s</p>
@@ -76,7 +77,20 @@
                             </div>
                         </div>
                       </div>
+                        <?php if($this->session->flashdata('info')){ ?>
+                <div class="alert alert-warning alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <?php echo $this->session->flashdata('info'); ?>
+                </div>
+            <?php } ?>
 
+            <?php
+                $name = array(
+                    'name'=>'addData',
+                    'class'=>'form-horizontal'
+                    );  
+                echo form_open_multipart('user/addKegiatan/',$name);
+            ?>
                       <div class="col-md-12 modal-example">
 
               <div class="col-md-12">
@@ -86,26 +100,26 @@
                     </div>
                     <div class="panel-body">
 
-                          <div class="col-md-12">
-                              <div class="modal fade">
-                                <div class="modal-dialog">
-                                  <div class="modal-content">
-                                    <div class="modal-header">
-                                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                      <h4 class="modal-title">Upload</h4>
-                                    </div>
-                                    <div class="modal-body">
-                                      <p>One fine body&hellip;</p>
-                                    </div>
-                                    <div class="modal-footer">
-                                      <button type="button" class="btn btn-primary">Upload</button>
-                                    </div>
-                                  </div><!-- /.modal-content -->
-                                </div><!-- /.modal-dialog -->
-                              </div><!-- /.modal -->
+                       
+                           <div class="form-group">
+                            <label class="col-md-2 control-label text-right">Upload</label>
+                              <div class="col-md-4">
+                              <input type="file" name="dokumen" class="form-control">
+                              </div>
+                            </div> <!-- /.modal -->
                           </div>
+                             <div class="form-group">
 
-                    </div>
+                            <label class="col-md-2 control-label text-right"></label>
+                               <div class="col-md-4">
+                            <button  name="submit" value="submit" class="btn ripple-infinite btn-gradient btn-info">
+                                   <div>
+                                      <span>Save </span>
+                                   </div>
+                            </button>
+                          </div>
+                          </div>
+                    </div>  
                   </div>
               </div>
           </div>
