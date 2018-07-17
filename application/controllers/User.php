@@ -10,50 +10,64 @@ class User extends CI_Controller{
     $this->load->model('modelSekolah');
      $this->load->model('modelProfil');
     $this->load->model('modelUser');
- /*   if (empty($this->session->userdata('id_pengguna'))) {
-    redirect(base_url("login"));
-    }*/
+ if (!$this->session->userdata('level','id_anggota')) {
+      redirect('login');
+    }
  }
 	public function index(){
 		$data['main'] = 'user/user_dashboard';
 		$this->load->view('template/template',$data);
-	}
+	
+}
 
+  public function form_edit(){
+    $data['anggota'] = $this->modelProfil->getProfil(($this->session->userdata('id_anggota')));
+    $data['main'] = 'user/form_edit';
+    $this->load->view('template/template',$data);
+  }
 	 public function edit_profil()
     {   /* $data['anggota'] = $this->modelSekolah->getAnggota();*/
-        $data['anggota'] = $this->modelProfil->getProfil();
+/*        var_dump($this->session->userdata()); die('CEK');*/
+        $data['anggota'] = $this->modelProfil->getProfil(($this->session->userdata('id_anggota')));
         $data['main'] = 'user/edit_profil';
        $this->load->view('template/template',$data);
     }
 
-    public function editProfil($id=null){
-   /*    $data['anggota'] = $this->modelSekolah->getDataByAnggota($id);*/
-      $data['anggota'] = $this->modelProfil->getDataByProfil($id);
-      $data['main'] = 'user/edit_profil';
-      $this->load->view('template/template',$data);
+   public function editProfil($id=null){
+   $data['anggota'] = $this->modelSekolah->getDataByAnggota($id);
+      $data['main'] = 'user/form_edit';
+      $this->load->view('partial/partial',$data);
       if ($id==null) {
-        $this->session->set_flashdata('info','Id profil tidak boleh kosong!');
-        redirect('user/edit_profil  ','refresh');
+        $this->session->set_flashdata('info','Id makanan tidak boleh kosong!');
+        redirect('user/edit_profil','refresh');
       }
 
-    if($this->input->post('submit')==true){
+      if($this->input->post('submit')==true){
       $this->form_validation->set_rules('nama_lengkap', 'Nama ','trim|required');
-      $this->form_validation->set_rules('username', 'Username','trim|required');
-      $this->form_validation->set_rules('password', 'Password','trim|required');
+     $this->form_validation->set_rules('username', 'Username','trim|required');
+     $this->form_validation->set_rules('alamat', 'Alamat','trim|required');
+     $this->form_validation->set_rules('password', 'Password','trim|required');
     if ($this->form_validation->run() == TRUE) {
       $data = array(
          'nama_lengkap' => $this->input->post('nama_lengkap'),
         'username' => $this->input->post('username'),
-        'password' => $this->input->post('password')
+        'tgl_lahir' => $this->input->post('tgl_lahir'),
+        'jk' => $this->input->post('jk'),
+        'agama' => $this->input->post('agama'),
+        'gol_darah' => $this->input->post('gol_darah'),
+        'alamat' => $this->input->post('alamat'),
+        'password' => $this->input->post('password'),
+        'sekolah_id' => $this->input->post('sekolah_id'),
+        'tkt_pendidikan' => $this->input->post('tkt_pendidikan')
         );
 
-    $sql = $this->modelProfil->updateProfil($id,$data);
+    $sql = $this->modelSekolah->updateAnggota($id,$data);
     if ($sql) {
       $this->session->set_flashdata('info', 'Edit Data sukses');
       redirect('user/edit_profil','refresh');
     }else{
       $this->session->set_flashdata('info', 'Edit Data gagal');
-      redirect('admin/editProfil'.$id,'refresh');
+      redirect('user/editProfi'.$id,'refresh');
     } 
     
     }
@@ -114,6 +128,7 @@ class User extends CI_Controller{
 
     public function riwayat_kegiatan()
     {
+      $data['kegiatan'] = $this->modelProfil->getRiwayatK($this->session->userdata('id_anggota'));
         $data['main'] = 'user/riwayat_kegiatan';
        $this->load->view('template/template',$data);
     }
@@ -152,6 +167,7 @@ class User extends CI_Controller{
 
     public function penghargaan()
     {
+        $data['penghargaan'] = $this->modelSekolah->getPenghargaan();
         $data['main'] = 'user/riwayat_penghargaan';
         $this->load->view('template/template',$data);
     }

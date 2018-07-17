@@ -10,16 +10,17 @@ class Admin extends CI_Controller{
     $this->load->model('modelSekolah');
     $this->load->model('modelUser');
     $this->load->model('modelGrafik');
- /*   if (empty($this->session->userdata('id_pengguna'))) {
-    redirect(base_url("login"));
-    }*/
+if (!$this->session->userdata('level','username')) {
+      redirect('login');
+    }
  }
 
     public function index()
     {
-        $data['main'] = 'admin/dashboard';
-        $this->load->view('partial/partial', $data);
-    }
+      $x['data'] = $this->modelGrafik->getGrafik();
+      $this->load->view('admin/dashboard',$x);
+    
+  }
     public function dashboard()
     {  /* $data['grafik'] = $this->modelGrafik->getGrafik();*/
         $data['main'] = 'admin/dashboard';
@@ -53,7 +54,7 @@ class Admin extends CI_Controller{
         'id_provinsi' =>$this->input->post('nama_provinsi'),
         'id_kabupaten' => $this->input->post('nama_kabupaten'),
         'id_kecamatan' => $this->input->post('nama_kecamatan'),
-        'password' => $this->input->post('password'),
+        'password' => md5($this->input->post('password')),
         'level' => $this->input->post('level'),
         'sekolah_id' => $this->input->post('sekolah_id'),
         'tkt_pendidikan' => $this->input->post('tkt_pendidikan')
@@ -260,7 +261,6 @@ public function deleteSekolah($id=null){
         'rincian' => $this->input->post('rincian'),
         'dokumen' =>$file['file_name']
         );
-
           $this->modelSekolah->addKegiatann($data); //memasukan data ke database
           redirect('admin/kegiatan'); //mengalihkan halaman
       }
@@ -313,9 +313,90 @@ public function deleteKegiatan($id=null){
     }
 }
     public function penghargaan(){
+        $data['penghargaan'] = $this->modelSekolah->getPenghargaan();
         $data['main'] ='admin/penghargaan';
         $this->load->view('partial/partial',$data);
     }
+
+    public function add_penghargaan(){
+      $data['penghargaan'] = $this->modelSekolah->getPenghargaan();
+      $data['main'] ='admin/add_penghargaan';
+      $this->load->view('partial/partial',$data);
+    }
+
+    public function addPenghargaan(){
+      $config = [
+        'upload_path' => './uploads/',
+        'allowed_types' => 'gif|jpg|png',
+        'max_size' => 1000, /*'max_width' => 1000,
+        'max_height' => 768*/
+      ];
+      $this->load->library('upload', $config);
+      if (!$this->upload->do_upload('gambar')) //jika gagal upload
+      {
+          $data['error'] = $this->upload->display_errors(); //tampilkan error
+          $data['main'] = 'admin/add_penghargaan';
+          $this->load->view('partial/partial', $data);
+      } else
+      //jika berhasil upload
+      {
+          $file = $this->upload->data();
+      $data = array(
+        'nama_penghargaan' => $this->input->post('nama_penghargaan'),
+        'keterangan' => $this->input->post('keterangan'),
+        'gambar' =>$file['file_name']
+        );
+          $this->modelSekolah->addPenghargaan($data); //memasukan data ke database
+          redirect('admin/penghargaan'); //mengalihkan halaman
+      }   
+    }
+
+
+    public function editPenghargaan($id=null){
+      $data['penghargaan'] = $this->modelSekolah->getDataByPenghargaan($id);
+      $data['main'] = 'admin/edit_penghargaan';
+      $this->load->view('partial/partial',$data);
+      if ($id==null) {
+        $this->session->set_flashdata('info','Id kegiatan tidak boleh kosong!');
+        redirect('admin/data_kegiatan','refresh');
+      }
+
+      if($this->input->post('submit')==true){
+        $this->form_validation->set_rules('nama_penghargaan', 'Nama Kategori','trim|required');
+
+    if ($this->form_validation->run() == TRUE) {
+      $data = array(
+        'nama_penghargaan' => $this->input->post('nama_penghargaan'),
+        'keterangan' => $this->input->post('keterangan')        );
+
+    $sql = $this->modelSekolah->updatePenghargaan($id,$data);
+    if ($sql) {
+      $this->session->set_flashdata('info', 'Edit Data sukses');
+      redirect('admin/penghargaan','refresh');
+    }else{
+      $this->session->set_flashdata('info', 'Edit Data gagal');
+      redirect('admin/editPenghargaan'.$id,'refresh');
+    } 
+    
+    }
+
+  }
+}
+public function deletePenghargaan($id=null){
+    if($id==null){
+      $this->session->set_flashdata('info', 'Gagal Hapus Data!');
+      redirect('admin/penghargaan','refresh');
+    }
+    $cek = $this->modelSekolah->deletePenghargaan($id);
+    if($cek){
+      $this->session->set_flashdata('info', 'Sukses Hapus Data ');
+      redirect('admin/penghargaan','refresh');
+    } else{
+      $this->session->set_flashdata('info', 'Gagal Hapus Data ');
+      redirect('admin/penghargaan','refresh');
+    }
+}
+
     public function laporan_anggota(){
     $data['anggota'] = $this->modelSekolah->getAnggota();
     $this->load->view('admin/laporan_anggota',$data);
