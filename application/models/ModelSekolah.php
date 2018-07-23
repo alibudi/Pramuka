@@ -15,14 +15,34 @@ class ModelSekolah extends CI_Model {
 	return $data->result();*/
 	$data = $this->db->get('tb_anggota')->result();
 	return $data;
+	/*$this->db->select('*');
+ 	$this->db->from('tb_sekolah');
+ 	$this->db->join('tb_anggota','tb_anggota.sekolah_id=tb_sekolah.id');
+
+	$data = $this->db->get();
+	return $data->result();*/
  }
- public function getKegiatan(){
+
+ public function getPenghargaan(){
  	$this->db->select('*');
  	$this->db->from('tb_anggota');
- 	$this->db->join('tb_kegiatan','tb_kegiatan.id_kegiatan=tb_anggota.id_anggota');
+ 	$this->db->join('tb_penghargaan','tb_penghargaan.id_anggota=tb_anggota.id_anggota');
 
 	$data = $this->db->get();
 	return $data->result();
+ 	/*$data = $this->db->get('tb_penghargaan')->result();
+ 	return $data;*/
+ }
+
+ public function getKegiatan(){
+ 	$this->db->select('*');
+ 	$this->db->from('tb_anggota');
+ 	$this->db->join('tb_kegiatan','tb_kegiatan.id_anggota=tb_anggota.id_anggota');
+
+	$data = $this->db->get();
+	return $data->result();
+	/*$data = $this->db->get('tb_kegiatan')->result();
+	return $data;*/
  }	
  public function tampilAnggota(){
  	$this->db->select('nama_lengkap','id_anggota');
@@ -46,6 +66,13 @@ class ModelSekolah extends CI_Model {
  	$cek = $this->db->affected_rows();
  	return $cek > 0 ? true : false;
  }
+
+ public function addPenghargaan($data){
+ $this->db->insert('tb_penghargaan',$data);
+ $cek = $this->db->affected_rows();
+ return $cek > 0 ? true : false;
+ }
+
  public function check_data($id){
  	$this->db->where('id',$id);
  	$this->db->from('tb_sekolah');
@@ -80,10 +107,17 @@ class ModelSekolah extends CI_Model {
  	return $data;
  }
  public function getDataByKegiatan($id){
- 	$this->db->where('id',$id);
+ 	$this->db->where('id_kegiatan',$id);
  	$data = $this->db->get('tb_kegiatan')->row();
  	return $data;
  }
+
+ public function getDataByPenghargaan($id){
+ 	$this->db->where('id_penghargaan',$id);
+ 	$data = $this->db->get('tb_penghargaan')->row();
+ 	return $data;
+ }
+
  public function updateData($id,$data){
  	$this->db->where('id',$id);
  	$this->db->update('tb_sekolah',$data);
@@ -100,8 +134,15 @@ class ModelSekolah extends CI_Model {
  }
 
  public function updateKegiatan($id,$data){
- 	$this->db->where('id',$id);
+ 	$this->db->where('id_kegiatan',$id);
  	$this->db->update('tb_kegiatan',$data);
+ 	$cek = $this->db->affected_rows();
+ 	return $cek >0 ? true : false;
+ }
+
+ public function updatePenghargaan($id,$data){
+ 	$this->db->where('id_penghargaan',$id);
+ 	$this->db->update('tb_penghargaan',$data);
  	$cek = $this->db->affected_rows();
  	return $cek >0 ? true : false;
  }
@@ -125,8 +166,18 @@ class ModelSekolah extends CI_Model {
 		}
 	}
 	 public function deleteKegiatan($id){
-	$this->db->where('id',$id);
+	$this->db->where('id_kegiatan',$id);
 	$cek = $this->db->delete('tb_kegiatan');
+		if($cek){
+			return true;
+		} else{
+			return false;
+		}
+	}
+
+	 public function deletePenghargaan($id){
+	$this->db->where('id_penghargaan',$id);
+	$cek = $this->db->delete('tb_penghargaan');
 		if($cek){
 			return true;
 		} else{
