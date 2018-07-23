@@ -15,12 +15,15 @@ class User extends CI_Controller{
     }
  }
 	public function index(){
+    $data['nama'] = $this->modelProfil->getNama(($this->session->userdata('id_anggota')));
+   $data['kegiatan'] = $this->modelSekolah->getKegiatan();
 		$data['main'] = 'user/user_dashboard';
 		$this->load->view('template/template',$data);
 	
 }
 
   public function form_edit(){
+     $data['nama'] = $this->modelProfil->getNama(($this->session->userdata('id_anggota')));
     $data['anggota'] = $this->modelProfil->getProfil(($this->session->userdata('id_anggota')));
     $data['main'] = 'user/form_edit';
     $this->load->view('template/template',$data);
@@ -28,15 +31,17 @@ class User extends CI_Controller{
 	 public function edit_profil()
     {   /* $data['anggota'] = $this->modelSekolah->getAnggota();*/
 /*        var_dump($this->session->userdata()); die('CEK');*/
+         $data['nama'] = $this->modelProfil->getNama(($this->session->userdata('id_anggota')));
         $data['anggota'] = $this->modelProfil->getProfil(($this->session->userdata('id_anggota')));
         $data['main'] = 'user/edit_profil';
        $this->load->view('template/template',$data);
     }
 
    public function editProfil($id=null){
+    $data['nama'] = $this->modelProfil->getNama(($this->session->userdata('id_anggota')));
    $data['anggota'] = $this->modelSekolah->getDataByAnggota($id);
       $data['main'] = 'user/form_edit';
-      $this->load->view('partial/partial',$data);
+      $this->load->view('template/template',$data);
       if ($id==null) {
         $this->session->set_flashdata('info','Id makanan tidak boleh kosong!');
         redirect('user/edit_profil','refresh');
@@ -56,7 +61,7 @@ class User extends CI_Controller{
         'agama' => $this->input->post('agama'),
         'gol_darah' => $this->input->post('gol_darah'),
         'alamat' => $this->input->post('alamat'),
-        'password' => $this->input->post('password'),
+        'password' => md5($this->input->post('password')),
         'sekolah_id' => $this->input->post('sekolah_id'),
         'tkt_pendidikan' => $this->input->post('tkt_pendidikan')
         );
@@ -77,19 +82,24 @@ class User extends CI_Controller{
 
     public function print()
     {
+      $data['nama'] = $this->modelProfil->getNama(($this->session->userdata('id_anggota')));
+      $data['anggota'] = $this->modelProfil->getProfil(($this->session->userdata('id_anggota'))); 
+
         $data['main'] = 'user/print_data_diri';
      $this->load->view('template/template',$data);
     }
 
    public function print_biodata(){
-    $data['anggota'] = $this->modelSekolah->getAnggota();
+     $data['nama'] = $this->modelProfil->getNama(($this->session->userdata('id_anggota')));
+    $data['anggota'] = $this->modelProfil->getPrint(($this->session->userdata('id_anggota'))); 
     $this->load->view('user/print_biodata',$data);
   }
     
 
     public function keahlian()
     {
-        $data['main'] = 'user/riwayat_keahlian';
+      $data['nama'] = $this->modelProfil->getNama(($this->session->userdata('id_anggota')));   
+     $data['main'] = 'user/riwayat_keahlian';
     $this->load->view('template/template',$data);
     }
 
@@ -122,13 +132,16 @@ class User extends CI_Controller{
 
     public function upload_keahlian()
     {
+         $data['nama'] = $this->modelProfil->getNama(($this->session->userdata('id_anggota')));
         $data['main'] = 'user/upload_keahlian';
         $this->load->view('template/template',$data);
     }
 
     public function riwayat_kegiatan()
     {
-      $data['kegiatan'] = $this->modelProfil->getRiwayatK($this->session->userdata('id_anggota'));
+        $data['nama'] = $this->modelProfil->getNama(($this->session->userdata('id_anggota')));
+      $data ['kegiatan'] = $this->modelProfil->getK(($this->session->userdata('id_anggota')));
+    /*  $data['kegiatan'] = $this->modelProfil->getRiwayatK(($this->session->userdata('id_anggota')));*/
         $data['main'] = 'user/riwayat_kegiatan';
        $this->load->view('template/template',$data);
     }
@@ -151,6 +164,8 @@ class User extends CI_Controller{
       {
           $file = $this->upload->data();
       $data = array(
+        'id_anggota' => $this->input->post('id_anggota'),
+        'tgl_kegiatan' => date('Y-m-d'),
        'dokumen' =>$file['file_name']
         );
 
@@ -161,30 +176,87 @@ class User extends CI_Controller{
 
     public function upload_kegiatan()
     {
+         $data['nama'] = $this->modelProfil->getNama(($this->session->userdata('id_anggota')));
         $data['main'] = 'user/upload_kegiatan';
        $this->load->view('template/template',$data);
     }
 
     public function penghargaan()
     {
-        $data['penghargaan'] = $this->modelSekolah->getPenghargaan();
+         $data['nama'] = $this->modelProfil->getNama(($this->session->userdata('id_anggota')));
+        $data ['penghargaan'] = $this->modelProfil->getP(($this->session->userdata('id_anggota')));
         $data['main'] = 'user/riwayat_penghargaan';
         $this->load->view('template/template',$data);
     }
 
+    public function addPenghargaan(){
+        $config = [
+        'upload_path' => './uploads/',
+        'allowed_types' => 'gif|jpg|png',
+        'max_size' => 1000, /*'max_width' => 1000,
+        'max_height' => 768*/
+      ];
+      $this->load->library('upload', $config);
+      if (!$this->upload->do_upload('dokumen')) //jika gagal upload
+      {
+          $data['error'] = $this->upload->display_errors(); //tampilkan error
+          $data['main'] = 'user/penghargaan';
+          $this->load->view('template/template', $data);
+      } else
+      //jika berhasil upload
+      {
+          $file = $this->upload->data();
+      $data = array(
+        'dokumen' =>$file['file_name']
+        );
+
+          $this->modelSekolah->addKegiatann($data); //memasukan data ke database
+          redirect('admin/penghargaan'); //mengalihkan halaman
+      }
+    }
+
     public function upload_penghargaan()
     {
+         $data['nama'] = $this->modelProfil->getNama(($this->session->userdata('id_anggota')));
         $data['main'] = 'user/upload_penghargaan';
         $this->load->view('template/template',$data);
     }
 
     public function tugas()
     {
+        $data['nama'] = $this->modelProfil->getNama(($this->session->userdata('id_anggota')));
         $data['main'] = 'user/riwayat_tugas';
       $this->load->view('template/template',$data);
 }
+
+  public function addTugas(){
+      $config = [
+        'upload_path' => './uploads/',
+        'allowed_types' => 'gif|jpg|png',
+        'max_size' => 1000, /*'max_width' => 1000,
+        'max_height' => 768*/
+      ];
+      $this->load->library('upload', $config);
+      if (!$this->upload->do_upload('dokumen')) //jika gagal upload
+      {
+          $data['error'] = $this->upload->display_errors(); //tampilkan error
+          $data['main'] = 'user/riwayat_tugas';
+          $this->load->view('template/template', $data);
+      } else
+      //jika berhasil upload
+      {
+          $file = $this->upload->data();
+      $data = array(
+        'dokumen' =>$file['file_name']
+        );
+
+          $this->modelSekolah->addKegiatann($data); //memasukan data ke database
+          redirect('admin/tugas'); //mengalihkan halaman
+      }
+  }
     public function upload_tugas()
     {
+        $data['nama'] = $this->modelProfil->getNama(($this->session->userdata('id_anggota')));
         $data['main'] = 'user/upload_tugas';
      $this->load->view('template/template',$data);
     }
