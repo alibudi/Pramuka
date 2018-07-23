@@ -55,9 +55,11 @@
                   </div>
                 </li>
               </ul>
-
+                 
               <ul class="nav navbar-nav navbar-right user-nav">
-                <li class="user-name"><span>Pramuka Uye</span></li>
+                  <?php 
+                 foreach($nama as $d)?>
+                <li class="user-name"><span><?php echo $d->nama_lengkap?></span></li>
                   <li class="dropdown avatar-dropdown">
                    <img src="<?php echo base_url()?>asset/img/avatar.jpg" class="img-circle avatar" alt="user name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"/>
                    <ul class="dropdown-menu user-dropdown">
